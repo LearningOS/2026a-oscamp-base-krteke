@@ -118,7 +118,7 @@ pub unsafe fn syscall3(id: usize, arg0: usize, arg1: usize, arg2: usize) -> isiz
     let ret: isize;
 
     core::arch::asm!(
-        "syscall rax",
+        "syscall",
         inlateout("rax") id => ret,
         in("rdi") arg0,
         in("rsi") arg1,
