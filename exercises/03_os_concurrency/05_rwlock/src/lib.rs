@@ -110,6 +110,10 @@ impl<T> RwLock<T> {
                     Ordering::Acquire,
                 )
                 .is_ok()
+                || self
+                    .state
+                    .compare_exchange(0, WRITER_HOLDING, Ordering::AcqRel, Ordering::Acquire)
+                    .is_ok()
             {
                 return RwLockWriteGuard { lock: self };
             }
