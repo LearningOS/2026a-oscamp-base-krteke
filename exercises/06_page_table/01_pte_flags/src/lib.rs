@@ -57,28 +57,25 @@ const PPN_MASK: u64 = (1u64 << 44) - 1; // 44-bit PPN
 ///
 /// Hint: Shift PPN left by PPN_SHIFT bits, then OR with flags.
 pub fn make_pte(ppn: u64, flags: u64) -> u64 {
-    // TODO: Construct page table entry using ppn and flags
-    todo!()
+    (ppn << PPN_SHIFT) | flags
 }
 
 /// Extract physical page number (PPN) from page table entry.
 ///
 /// Hint: Right shift by PPN_SHIFT bits, then AND with PPN_MASK.
 pub fn extract_ppn(pte: u64) -> u64 {
-    // TODO: Extract PPN from pte
-    todo!()
+    (pte >> PPN_SHIFT) & PPN_MASK
 }
 
 /// Extract flags (lower 8 bits) from page table entry.
 pub fn extract_flags(pte: u64) -> u64 {
-    // TODO: Extract lower 8-bit flags
-    todo!()
+    const FLAGS_MASK: u64 = (1 << 8) - 1;
+    pte & FLAGS_MASK
 }
 
 /// Check whether page table entry is valid (V bit set).
 pub fn is_valid(pte: u64) -> bool {
-    // TODO: Check PTE_V
-    todo!()
+    pte & PTE_V == PTE_V
 }
 
 /// Determine whether page table entry is a leaf PTE.
@@ -86,8 +83,8 @@ pub fn is_valid(pte: u64) -> bool {
 /// In SV39, if any of R, W, X bits is set, the PTE is a leaf,
 /// pointing to the final physical page. Otherwise it points to next-level page table.
 pub fn is_leaf(pte: u64) -> bool {
-    // TODO: Check if any of R/W/X bits is set
-    todo!()
+    const LEAF_MASK: u64 = PTE_R | PTE_W | PTE_X;
+    pte & LEAF_MASK != 0
 }
 
 /// Check whether page table entry permits the requested access based on given permissions.
@@ -98,8 +95,11 @@ pub fn is_leaf(pte: u64) -> bool {
 ///
 /// Returns true iff: PTE is valid, and each requested permission is satisfied.
 pub fn check_permission(pte: u64, read: bool, write: bool, execute: bool) -> bool {
-    // TODO: First check if valid, then check each requested permission
-    todo!()
+    let read = !read || ((pte & PTE_R) == PTE_R);
+    let write = !write || ((pte & PTE_W) == PTE_W);
+    let execute = !execute || ((pte & PTE_X) == PTE_X);
+
+    is_valid(pte) && read && write && execute
 }
 
 #[cfg(test)]
